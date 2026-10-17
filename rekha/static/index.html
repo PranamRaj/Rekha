@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Rekha — live challenge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="top">
+        <div class="brand">
+            <h1>REKHA</h1>
+            <p>The line your AI agent cannot cross — live challenge, simulated money</p>
+        </div>
+        <div class="flow" aria-label="How a request flows">
+            <span>Agent proposes</span><b>&rarr;</b>
+            <span class="gate">Gateway decides</span><b>&rarr;</b>
+            <span>Adapter executes</span>
+        </div>
+        <div class="score" id="score"></div>
+    </header>
+
+    <main>
+        <!-- 1 ------------------------------------------------------------ -->
+        <section class="card">
+            <h2><i>1</i> Send a customer request</h2>
+            <p class="hint">The agent here is <b>deliberately gullible</b> — it obeys any instruction in
+                the ticket. Run an attack under <b>A (no guard)</b>, then the same one under <b>D (Rekha)</b>.</p>
+
+            <p class="lbl" id="cfglbl">Guard configuration</p>
+            <div class="seg" id="cfg" role="group" aria-labelledby="cfglbl">
+                <button data-cfg="D" aria-pressed="true"><strong>D · Rekha</strong><span>full gateway</span></button>
+                <button data-cfg="C" aria-pressed="false"><strong>C · Per-call</strong><span>stateless checks</span></button>
+                <button data-cfg="A" aria-pressed="false"><strong>A · None</strong><span>no guard at all</span></button>
+            </div>
+
+            <p class="lbl" style="margin-top:14px">Support ticket from the customer</p>
+            <textarea id="ticket" rows="3" aria-label="Support ticket text">My order arrived damaged. Please refund ₹4,000 to recovery-desk@okaxis</textarea>
+
+            <p class="lbl" style="margin-top:14px">Presets — <span class="good">green is legitimate</span>,
+                <span class="bad-t">red is an attack</span></p>
+            <div class="chips" id="chips"></div>
+
+            <div class="row">
+                <button class="pri" id="btnSend" onclick="send()">Send to agent</button>
+                <button id="btnRace" onclick="race()">Fire 5 × ₹4,999 at once</button>
+                <button class="ghost spacer" id="btnReset" onclick="reset()">Reset world</button>
+            </div>
+        </section>
+
+        <!-- 2 ------------------------------------------------------------ -->
+        <section class="card">
+            <h2><i>2</i> What the gateway did</h2>
+            <p class="hint">Each card shows the agent&rsquo;s proposal, then the decision. The coloured strip is
+                the <b>outcome</b> — a <code>BLOCK</code> is a good result, so it reads green.</p>
+            <div id="trace"></div>
+        </section>
+
+        <!-- 3 ------------------------------------------------------------ -->
+        <section class="card">
+            <h2><i>3</i> Approvals inbox</h2>
+            <p class="hint">Under D the approver must <b>retype the amount</b> before approving, and the receipt
+                is signed over the exact arguments — so replaying or editing it afterwards fails.</p>
+            <div id="reviews"></div>
+        </section>
+
+        <!-- 4 ------------------------------------------------------------ -->
+        <section class="card">
+            <h2><i>4</i> Tamper-evident audit log</h2>
+            <p class="hint">Edit or delete a row and <b>Verify</b> catches it. Truncating the tail does
+                <b>not</b> show up — unless you export the signed head first.</p>
+            <div class="row" style="margin-top:0">
+                <button class="sm" onclick="tamper('anchor')">Export signed head</button>
+                <button class="sm" onclick="tamper('edit')">Edit a row</button>
+                <button class="sm" onclick="tamper('delete')">Delete a row</button>
+                <button class="sm" onclick="tamper('truncate')">Truncate tail</button>
+                <button class="sm pri spacer" onclick="verify()">Verify chain</button>
+            </div>
+            <p class="verify" id="verify"></p>
+            <div id="audit"></div>
+        </section>
+
+        <!-- 5 ------------------------------------------------------------ -->
+        <section class="card full">
+            <h2><i>5</i> Money that actually moved</h2>
+            <p class="hint">Read straight from the system of record. This is the honest scoreboard — not the
+                verdicts the gateway reported.</p>
+            <div id="refunds"></div>
+        </section>
+
+        <!-- 6 ------------------------------------------------------------ -->
+        <section class="card full suite">
+            <h2><i>6</i> Red-team suite — 45 attacks × 4 configurations</h2>
+            <p class="hint">Every scenario runs on a fresh database, and success is judged on <b>database
+                    state</b> against invariants V1–V8, never on what the gateway claimed.</p>
+            <div class="row" style="margin-top:0">
+                <button class="pri" id="btnSuite" onclick="suite()">Run full suite</button>
+                <span class="mut" id="suiteMsg" style="font-size:12.5px"></span>
+            </div>
+            <div id="suite"></div>
+        </section>
+    </main>
+
+    <div id="alerts" aria-live="polite" aria-atomic="false"></div>
+    <script src="app.js" defer></script>
+</body>
+
+</html>

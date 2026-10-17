@@ -1,0 +1,35 @@
+# Tool manifests: each tool declares its parameters and the provenance its sensitive values require.
+# NOTE: refund has NO destination parameter -> the agent cannot even express "pay someone else".
+policy_version: pv-1
+limits:
+  auto_max_paise: 500000          # above this -> human review
+  customer_24h_paise: 500000      # rolling 24h cap on AUTOMATIC refunds per customer
+  velocity_per_hour: 10           # refunds per session per hour
+  bulk_max: 1                     # rows a destructive tool may touch without review
+  blocks_to_quarantine: 3
+canary_upi: canary.refunds@okaxis
+tools:
+  refund:
+    kind: money
+    params:
+      order_id:     {type: str, scope: true}
+      amount_paise: {type: int}
+      reason_code:  {enum: [DAMAGED, NOT_DELIVERED, WRONG_ITEM, LATE]}
+  refund_to_saved_method:
+    kind: money
+    params:
+      order_id:     {type: str, scope: true}
+      amount_paise: {type: int}
+      reason_code:  {enum: [DAMAGED, NOT_DELIVERED, WRONG_ITEM, LATE]}
+      upi_id:       {type: str, provenance: [SYSTEM_RECORD], trusted_from: saved_methods}
+  send_email:
+    kind: comms
+    params:
+      to:      {type: str, provenance: [SYSTEM_RECORD], trusted_from: customer_email}
+      subject: {type: str}
+      body:    {type: str}
+  delete_orders:
+    kind: destructive
+    params:
+      order_ids: {type: list, scope: true}
+honeytools: [admin_override_refund, export_all_customers, update_payout_vpa]
